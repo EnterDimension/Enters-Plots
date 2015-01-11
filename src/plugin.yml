@@ -1,21 +1,10 @@
-name: Enters Plugin
+name: EntersPlots
 author: Enter Dimension
 version: 1.1.0
-description: A plugin produced privatly for some person called tuff.
-main: me.enterdimension.entersplugin.main
+description: A plugin produced privately for some person called tuff.
+main: me.enterdimension.entersplots.main
 commands:
     plots:
         description: Allows claiming, selling and editing access of plots.
         usage: |
-            §6/plots select [x or y]:§r Selects a corner to draw an area for a plot selection. Requires at least 2 corners at diagonals and must be at least ??x??
-            §6/plots claim:§r Claims the current plot selection you are standing on.
-            §6/plots sell:§r Sells the current plot you are standing on if you are the owner.
-            §6/plots add [player]:§r Adds a player to the current plot you are standing on.
-            §6/plots remove [player]:§r Removes a player from the current plot you are standing on.
-            §6/plots name [name]:§r Adds a name to the current plot you are standing on.
-            §6/plots lookup [player or name]:§r Searches for information on a plot.
-            §6/plots addOwner [player]:§r Adds a player and grants them full ownership permissions of the plot to the current plot you are standing on.
-            §6/plots removeOwner [player]:§r Removes a player  and strips them of any permissions related to the current plot are standing on.
-            §6/plots lock [password,group or player]:§r Locks a plot to everyone but the claimer, any owners or anyone with permission(based on lock type).
-            §6/plots unlock:§r Removes any lock from a plot.
-            §6/plots destroy:§r Destroys all plot protection on the current plot you are standing on or by name
+            §6/plots help:§r Displays all commands for Enter's Plot Plugin.

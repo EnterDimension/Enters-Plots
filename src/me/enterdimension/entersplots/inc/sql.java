@@ -1,15 +1,22 @@
-package me.enterdimension.entersplugin.inc;
+package me.enterdimension.entersplots.inc;
 
 import java.sql.*;
 import java.util.ArrayList;
 
 import static org.bukkit.Bukkit.getLogger;
-import static org.bukkit.Bukkit.resetRecipes;
 
-/**
- * Created by Isaac on 10/01/2015.
- *
- */
+/*
+
+    Produced by Isaac Brown
+    Last edited 11/01/2015 by Isaac
+
+    Copyright 2015 Enters-Domain, All Rights Reserved
+
+    Website: http://www.enters-domain.com
+    License: http://www.enters-domain.com/license
+
+*/
+
 public class sql {
 
     public static void connect() {

@@ -1,6 +1,6 @@
-package me.enterdimension.entersplugin;
+package me.enterdimension.entersplots;
 
-import org.bukkit.Bukkit;
+import me.enterdimension.entersplots.inc.area;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -8,29 +8,34 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import static me.enterdimension.entersplugin.inc.area.*;
-import static org.bukkit.Bukkit.getLogger;
+import static me.enterdimension.entersplots.inc.area.*;
 
-import me.enterdimension.entersplugin.inc.sql;
+import me.enterdimension.entersplots.inc.sql;
 
-import java.lang.reflect.Array;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 
-/**
- * Created by Isaac on 08/01/2015.
- *
- */
+/*
+
+    Produced by Isaac Brown
+    Last edited 11/01/2015 by Isaac
+
+    Copyright 2015 Enters-Domain, All Rights Reserved
+
+    Website: http://www.enters-domain.com
+    License: http://www.enters-domain.com/license
+
+*/
+
 public class main extends JavaPlugin {
     public static Location corner1;
     public static Location corner2;
     public static Location[] corners = new Location[2];
 
     public void onEnable(){
-        getLogger().info("Enter's Plugin is now running.");
+        getLogger().info("Enter's Plots is now running.");
     }
     public void onDisable(){
-        getLogger().info("Enter's Plugin has stopped running.");
+        getLogger().info("Enter's Plots has stopped running.");
     }
     public boolean onCommand(CommandSender commandsender, Command cmd, String label, String[] args) {
         String command = cmd.getName();
@@ -38,13 +43,13 @@ public class main extends JavaPlugin {
             Player sender = (Player) commandsender;
             if (args.length == 0) {
                 sender.sendMessage(ChatColor.DARK_AQUA + ""
-                        + ChatColor.BOLD + "Enter's Plot Plugin successfully built and running\n"
-                        + ChatColor.RESET + "" + ChatColor.DARK_AQUA + "Version: " + ChatColor.RESET + "p1.1.0\n"
-                        + ChatColor.DARK_AQUA + "Help: " + ChatColor.RESET + "/plots help");
+                        + ChatColor.BOLD + "Enter's Plot Plugin successfully built and running\n" + ChatColor.RESET
+                        + ChatColor.DARK_AQUA + "Version: " + ChatColor.RESET + ChatColor.AQUA + "p1.1.0\n"
+                        + ChatColor.DARK_AQUA+"Help: " + ChatColor.RESET+ChatColor.AQUA + "/plots help");
             } else {
                 if (args[0].equalsIgnoreCase("help")) {
                     String[] help = {"&6/plots help:&r Returns all commands and descriptions for Enter's Plot Plugin",
-                            "&6/plots select [x or y]:&r Selects a corner from your current position to draw an area for a plot selection.",
+                            "&6/plots select [1 or 2]:&r Selects a corner from your current position to draw an area for a plot selection.",
                             "&6/plots claim:&r Claims your current plot selection. Requires at least 2 corners at diagonals and must be at least ??x??",
                             "&6/plots options:&r Displays all options for the plot you are currently standing on.",
                             "&6/plots sell:&r Sells the current plot you are standing on if you are the owner.",
@@ -64,50 +69,33 @@ public class main extends JavaPlugin {
                 } else {
                     if (args[0].equalsIgnoreCase("select")) {
                         if (args.length == 1) {
-                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED + "Please use the correct syntax: /plots select [1 or 2]");
+                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                    + "Please use the correct syntax: /plots select [1 or 2]");
                         } else {
                             if (args[1].equalsIgnoreCase("1") || args[1].equalsIgnoreCase("2")) {
                                 Location l = sender.getLocation();
-                                sender.sendMessage(ChatColor.DARK_AQUA +"[Plots]"+ChatColor.AQUA+" Selected corner number "+args[1]+" @(" + l.getBlockX()+", "+l.getBlockY()+", "+l.getBlockZ()+")");
+                                sender.sendMessage(ChatColor.DARK_AQUA +"[Plots]" + ChatColor.AQUA
+                                        + " Selected corner number " + args[1] + " @(" + l.getBlockX()+", "
+                                        + l.getBlockY() + ", " + l.getBlockZ() + ")");
                                 corners[(Integer.parseInt(args[1])) - 1] = l;
                             } else {
-                                sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED + ChatColor.ITALIC + "(ErrCode:i002)" + ChatColor.RESET + ChatColor.RED + "Please use the correct syntax: /plots select [1 or 2]");
+                                sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
+                                        + "Please use the correct syntax: /plots select [1 or 2]");
                             }
                         }
                     } else if (args[0].equalsIgnoreCase("claim")) {
                         ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
-                        String plotId = Integer.toString(results.size());
                         sql.query("INSERT INTO plots (Owner,corner1x,corner1y,corner1z,corner2x,corner2y,corner2z) " +
-                                "VALUES ('" + sender.getName() + "','" + plotId +
+                                "VALUES ('" + sender.getName() + "','" +
                                 corners[0].getBlockX() + "','" +
                                 corners[0].getBlockY() + "','" +
                                 corners[0].getBlockZ() + "','" +
                                 corners[1].getBlockX() + "','" +
                                 corners[1].getBlockY() + "','" +
                                 corners[1].getBlockZ() + "');");
-                        sender.sendMessage(ChatColor.DARK_AQUA+"[Plots]"+ChatColor.AQUA+" Successfully claimed "+"(???)"+ " columns under plot "+plotId+". Type /plots options for all plot actions.");
-
-                    }
-                    else if (args[0].equalsIgnoreCase("test")){
-                        ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots WHERE ID='"+args[1]+"'");
-
-                        //ArrayList<String> row = results.get(1);
-                        Location ecorner1 = new Location(sender.getWorld(),
-                                Double.parseDouble(results.get(0).get(1)),
-                                Double.parseDouble(results.get(0).get(2)),
-                                        Double.parseDouble(results.get(0).get(3)));
-                        sender.sendMessage("test");
-                        Location ecorner2 = new Location(sender.getWorld(),
-                                Double.parseDouble(results.get(0).get(4)),
-                                Double.parseDouble(results.get(0).get(5)),
-                                Double.parseDouble(results.get(0).get(6)));
-                        sender.sendMessage("test2");
-                        if(inArea(sender.getWorld(),ecorner1,ecorner2,sender.getLocation())){
-                            sender.sendMessage("You are on le plot");
-                        }
-                        else {
-                            sender.sendMessage("You are not on le plot");
-                        }
+                        sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA + " Successfully claimed "
+                                + "(" + area.getColumnCount(corners[0],corners[1]) + ")" + " columns under plot "
+                                + Integer.toString(results.size() + 1) + ". Type /plots options for all plot actions.");
                     }
                 }
             }
