@@ -15,11 +15,11 @@ import org.bukkit.Location;
 */
 
 public class area {
-    public static Boolean inArea(Location corner1, Location corner2, Location ply) {
-        return (((ply.getBlockX() >= corner1.getBlockX() && ply.getBlockX() <= corner2.getBlockX())
-                || (corner1.getBlockX() >= ply.getBlockX() && corner2.getBlockX() <= ply.getBlockX()))
-                && ((ply.getBlockZ() >= corner1.getBlockZ() && ply.getBlockZ() <= corner2.getBlockZ())
-                || (corner1.getBlockZ() >= ply.getBlockZ() && corner2.getBlockZ() <= ply.getBlockZ())));
+    public static Boolean inArea(Location corner1, Location corner2, Location location) {
+        return (((location.getBlockX() >= corner1.getBlockX() && location.getBlockX() <= corner2.getBlockX())
+                || (corner1.getBlockX() >= location.getBlockX() && corner2.getBlockX() <= location.getBlockX()))
+                && ((location.getBlockZ() >= corner1.getBlockZ() && location.getBlockZ() <= corner2.getBlockZ())
+                || (corner1.getBlockZ() >= location.getBlockZ() && corner2.getBlockZ() <= location.getBlockZ())));
     }
     public static Integer getColumnCount(Location corner1, Location corner2){
         return (Math.abs(corner1.getBlockX() - corner2.getBlockX()))
