@@ -10,7 +10,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 /*
     
-    Produced by Isaac Bplotn
+    Produced by Isaac Brown
     Last edited 11/01/2015 by Isaac
     
     Copyright 2015 Enters-Domain, All Rights Reserved
