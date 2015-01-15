@@ -26,13 +26,23 @@ public class plots {
         getLogger().warning("Found multiple or nil results for plot ID "+plotId+". Canceling process.");
         return null;
     }
-    private static ArrayList<String> getPlotUsers(Integer plotId){
-        ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots_" + plotId);
-        if(results.size() == 1)return results.get(0);
-        getLogger().warning("Found multiple or nil results for plot ID "+plotId+". Canceling process.");
+    public static ArrayList<String> getPlotUser(Integer plotId, String username){
+        ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plot_" + plotId + " WHERE username = '"
+                + username + "'");
+        getLogger().warning("SELECT * FROM plot_" + plotId + " WHERE username = '"
+                + username + "'");
+        if(results.size() == 1) return results.get(0);
+        getLogger().warning("Found multiple or nil results for plot ID " + plotId + " and username "
+                + username + ". Canceling process.");
         return null;
-
     }
+    public static ArrayList<ArrayList<String>> getPlotUsers(Integer plotId){
+        ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plot_" + plotId);
+        if(results.size() >= 1)return results;
+        getLogger().warning("Found nil results for plot ID "+plotId+". Canceling process.");
+        return null;
+    }
+
     public static boolean inPlot(Player player, Integer plotId) {
 
         ArrayList<String> plot = getPlot(plotId);
@@ -60,9 +70,11 @@ public class plots {
         }
         return null;
     }
-    public static boolean hasRank(Player player,  Integer plotId, String permission){
-        ArrayList<String> plot = sql.getQuery("SELECT * FROM plot_" + plotId + "WHERE username = "
-                + player.getName()).get(0);
-        return plot.get(2).equalsIgnoreCase(permission);
+    public static String getOwner(Integer plotId){
+        return getPlot(plotId).get(1);
+    }
+    public static boolean hasRank(Player player,  Integer plotId, String rank) {
+        ArrayList<String> user = getPlotUser(plotId, player.getName());
+        return !(user == null) && user.get(2).equalsIgnoreCase(rank);
     }
 }

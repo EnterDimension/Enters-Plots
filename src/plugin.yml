@@ -8,3 +8,15 @@ commands:
         description: Allows claiming, selling and editing access of plots.
         usage: |
             §6/plots help:§r Displays all commands for Enter's Plot Plugin.
+permissions:
+    plots.*:
+        description: Grants access to all Enter's Plots commands.
+        children:
+            plots.control: true
+            plots.admin: true
+    plots.control:
+        description: Allows claiming, selling and basic management of plots.
+        default: true
+    plots.admin:
+        description: Allows advanced control and some extra features for plots.
+        default: op
