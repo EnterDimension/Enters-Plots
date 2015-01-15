@@ -39,7 +39,7 @@ public class main extends JavaPlugin {
         String command = cmd.getName();
         if (commandsender instanceof Player && command.equalsIgnoreCase("plots")) {
             Player sender = (Player) commandsender;
-            commandCheck:
+            commandLoop:
             if (args.length == 0) {
                 sender.sendMessage(ChatColor.DARK_AQUA + ""
                         + ChatColor.BOLD + "Enter's Plot Plugin successfully built and running\n" + ChatColor.RESET
@@ -127,23 +127,25 @@ public class main extends JavaPlugin {
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (args.length == 1) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots remove [username]");
+                            + "Please use the correct syntax: /plots removeOwner [username]");
                 } else if (plots.inAnyPlot(sender)) {
                     Integer plotId = plots.getPlotId(sender.getLocation());
-                    if (plots.hasRank(sender, plotId, "owner")
-                            ||plots.getOwner(plotId).equalsIgnoreCase(sender.getName())
-                            || sender.hasPermission("plots.override")) {
-                        sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
-                        sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
-                                + " Successfully removed " + args[1] + " from plot " + (plotId + 1)
-                                + ". To see all members of this plot type /plots users.");
-                    } else {
-                        sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
-                                + " You do not have permission to remove players from this plot!"
-                                + "If you believe this is an error please contact the plot owner("
-                                + plots.getOwner(plotId) + ") or a staff member.");
+                    ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
+                    if(users == null){
+                        users = new ArrayList<ArrayList<String>>();
                     }
-
+                    for(ArrayList<String> row: users){
+                        if(row.get(1).equalsIgnoreCase(args[1])){
+                            sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
+                            sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+                                    + " Successfully removed " + args[1] + " from plot " + (plotId + 1)
+                                    + ". To see all members of this plot type /plots users.");
+                            break commandLoop;
+                        }
+                    }
+                    sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+                            + " Sorry, but there is no player currently on this plot with the name " + args[1]
+                            + ". To see all members of this plot type /plots users.");
                 } else {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
@@ -186,13 +188,17 @@ public class main extends JavaPlugin {
                             + "Please use the correct syntax: /plots removeOwner [username]");
                 } else if (plots.inAnyPlot(sender)) {
                     Integer plotId = plots.getPlotId(sender.getLocation());
-                    for(ArrayList<String> row: plots.getPlotUsers(plotId)){
+                    ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
+                    if(users == null){
+                        users = new ArrayList<ArrayList<String>>();
+                    }
+                    for(ArrayList<String> row: users){
                         if(row.get(1).equalsIgnoreCase(args[1])){
                             sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
                             sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
                                     + " Successfully removed " + args[1] + " from plot " + (plotId + 1)
                                     + ". To see all members of this plot type /plots users.");
-                            break commandCheck;
+                            break commandLoop;
                         }
                     }
                     sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
@@ -206,12 +212,17 @@ public class main extends JavaPlugin {
                 if (plots.inAnyPlot(sender)) {
                     ArrayList<ArrayList<String>> plotUsers = plots.getPlotUsers(plots.getPlotId(sender.getLocation()));
                     String users = "";
-                    for (ArrayList<String> u : plotUsers) {
-                        if (u.get(2).equalsIgnoreCase("owner")) {
-                            users += "(Co-Owner)" + u.get(1) + ", ";
-                        } else {
-                            users += u.get(1) + ", ";
+                    if (!(plotUsers == null)){
+                        for (ArrayList<String> u : plotUsers) {
+                            if (u.get(2).equalsIgnoreCase("owner")) {
+                                users += "(Co-Owner)" + u.get(1) + ", ";
+                            } else {
+                                users += u.get(1) + ", ";
+                            }
                         }
+                    }
+                    else {
+                        users = "(None)";
                     }
                     sender.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
                             + " Showing all users for plot " + plots.getPlotId(sender.getLocation())
