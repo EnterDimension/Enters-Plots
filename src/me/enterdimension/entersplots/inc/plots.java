@@ -43,19 +43,19 @@ public class plots {
         return null;
     }
 
-    public static boolean inPlot(Player player, Integer plotId) {
+    public static boolean inPlot(Location location, Integer plotId) {
 
         ArrayList<String> plot = getPlot(plotId);
-        Location corner1 = new Location(player.getWorld(),
+        Location corner1 = new Location(location.getWorld(),
                 Double.parseDouble(plot.get(2)),Double.parseDouble(plot.get(3)),Double.parseDouble(plot.get(4)));
-        Location corner2 = new Location(player.getWorld(),
+        Location corner2 = new Location(location.getWorld(),
                 Double.parseDouble(plot.get(5)),Double.parseDouble(plot.get(6)),Double.parseDouble(plot.get(7)));
-        return area.inArea(corner1, corner2, player.getLocation());
+        return area.inArea(corner1, corner2, location);
     }
-    public static boolean inAnyPlot(Player player){
+    public static boolean inAnyPlot(Location location){
         ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
         for(ArrayList<String> plot:results){
-            if(inPlot(player, Integer.parseInt(plot.get(0)))) return true;
+            if(inPlot(location, Integer.parseInt(plot.get(0)))) return true;
         }
         return false;
     }
@@ -70,11 +70,17 @@ public class plots {
         }
         return null;
     }
+    public static String getPlotName(Integer plotId){
+        return getPlot(plotId).get(8) == null ? "Plot "+Integer.toString(plotId) : getPlot(plotId).get(8);
+    }
     public static String getOwner(Integer plotId){
         return getPlot(plotId).get(1);
     }
     public static boolean hasRank(Player player,  Integer plotId, String rank) {
         ArrayList<String> user = getPlotUser(plotId, player.getName());
         return !(user == null) && user.get(2).equalsIgnoreCase(rank);
+    }
+    public static String getLockType(Integer plotId){
+        return plots.getPlot(plotId).get(9);
     }
 }

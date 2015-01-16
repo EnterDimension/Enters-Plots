@@ -20,3 +20,5 @@ permissions:
     plots.admin:
         description: Allows advanced control and some extra features for plots.
         default: op
+    plots.override:
+        description: Allows bypassing any protection on any plot.

@@ -31,6 +31,7 @@ public class main extends JavaPlugin {
 
     public void onEnable(){
         getLogger().info("Enter's Plots is now running.");
+        new playerListener(this);
     }
     public void onDisable(){
         getLogger().info("Enter's Plots has stopped running.");
@@ -128,7 +129,7 @@ public class main extends JavaPlugin {
                 if (args.length == 1) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if (plots.inAnyPlot(sender)) {
+                } else if (plots.inAnyPlot(sender.getLocation())) {
                     Integer plotId = plots.getPlotId(sender.getLocation());
                     ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
                     if(users == null){
@@ -186,7 +187,7 @@ public class main extends JavaPlugin {
                 if (args.length == 1) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if (plots.inAnyPlot(sender)) {
+                } else if (plots.inAnyPlot(sender.getLocation())) {
                     Integer plotId = plots.getPlotId(sender.getLocation());
                     ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
                     if(users == null){
@@ -209,7 +210,7 @@ public class main extends JavaPlugin {
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
                 }
             } else if (args[0].equalsIgnoreCase("users")) {
-                if (plots.inAnyPlot(sender)) {
+                if (plots.inAnyPlot(sender.getLocation())) {
                     ArrayList<ArrayList<String>> plotUsers = plots.getPlotUsers(plots.getPlotId(sender.getLocation()));
                     String users = "";
                     if (!(plotUsers == null)){
@@ -234,7 +235,7 @@ public class main extends JavaPlugin {
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
                 }
             }  else if (args[0].equalsIgnoreCase("options")) {
-                if (plots.inAnyPlot(sender)) {
+                if (plots.inAnyPlot(sender.getLocation())) {
                     if(plots.hasRank(sender, plots.getPlotId(sender.getLocation()), "owner")||
                             plots.getOwner(plots.getPlotId(sender.getLocation())).equalsIgnoreCase(sender.getName())) {
                         String[] help = {
