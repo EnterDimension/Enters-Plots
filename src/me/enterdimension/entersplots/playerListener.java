@@ -43,7 +43,8 @@ public class playerListener implements Listener {
         if(plots.inAnyPlot(block.getLocation())) if (!(plots.hasRank(player, plots.getPlotId(block.getLocation()), "owner") ||
                 plots.hasRank(player, plots.getPlotId(block.getLocation()), "member") ||
                 player.hasPermission("plots.override"))) {
-            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+            player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                    + ChatColor.AQUA
                     + " Sorry! You do not have permission to build on this plot ("
                     + plots.getPlotName(plots.getPlotId(block.getLocation())) + ").");
             e.setCancelled(true);
@@ -56,7 +57,8 @@ public class playerListener implements Listener {
         if(plots.inAnyPlot(block.getLocation())) if (!(plots.hasRank(player, plots.getPlotId(block.getLocation()), "owner") ||
                 plots.hasRank(player, plots.getPlotId(block.getLocation()), "member") ||
                 player.hasPermission("plots.override"))) {
-            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+            player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                    + ChatColor.AQUA
                     + " Sorry! You do not have permission to mine on this plot ("
                     + plots.getPlotName(plots.getPlotId(block.getLocation())) + ").");
             e.setCancelled(true);
@@ -74,7 +76,8 @@ public class playerListener implements Listener {
                 if (!(plots.hasRank(player, plots.getPlotId(location), "owner") ||
                         plots.hasRank(player, plots.getPlotId(location), "member") ||
                         player.hasPermission("plots.override"))) {
-                    player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+                    player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                            + ChatColor.AQUA
                             + " Sorry! You do not have permission to attack entities (with the exception of skeletons)"
                             + " on this plot (" + plots.getPlotName(plots.getPlotId(location)) + ").");
                     e.setCancelled(true);
@@ -93,27 +96,30 @@ public class playerListener implements Listener {
         sql.log = !sql.log;
         if(plots.inAnyPlot(location)) if (!plots.getLockType(plots.getPlotId(location)).equalsIgnoreCase("none")
                 && player.hasPermission("plots.override")) {
-            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+            player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                    + ChatColor.AQUA
                     + " Sorry! You do not have permission to walk on this plot ("
                     + plots.getPlotName(plots.getPlotId(location)) + ").");
             if (movedPlace) {
                 e.setTo(from);
             }
         }
-        if (plots.inAnyPlot(to) && !plots.inAnyPlot(from)) { 
+        if (plots.inAnyPlot(to) && !plots.inAnyPlot(from)) {
             plotId = plots.getPlotId(to);
             String suf = plots.getOwner(plotId).substring(plots.getOwner(plotId).length() - 1).equalsIgnoreCase("s")
                     ? "' " : "'s";
-            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
-                    + " Now entering " + plots.getPlotName(plotId) + " ("
-                    + plots.getOwner(plotId) + suf + " plot)");
+            player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                    + ChatColor.AQUA
+                    + " Now " + ChatColor.BOLD + "entering " + ChatColor.RESET + ChatColor.AQUA
+                    + plots.getPlotName(plotId) + " (" + plots.getOwner(plotId) + suf + " plot)");
         } else if (!plots.inAnyPlot(to) && plots.inAnyPlot(from)) {
             plotId = plots.getPlotId(from);
             String suf = plots.getOwner(plotId).substring(plots.getOwner(plotId).length() - 1).equalsIgnoreCase("s")
                     ? "' " : "'s";
-            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
-                    + " Now leaving " + plots.getPlotName(plotId) + " ("
-                    + plots.getOwner(plotId) + suf + " plot)");
+            player.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                    + ChatColor.AQUA
+                    + " Now " + ChatColor.BOLD + "leaving " + ChatColor.RESET + ChatColor.AQUA
+                    + plots.getPlotName(plotId) + " (" + plots.getOwner(plotId) + suf + " plot)");
         }
         sql.log = !sql.log;
     }
