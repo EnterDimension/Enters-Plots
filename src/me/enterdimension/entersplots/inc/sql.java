@@ -18,6 +18,7 @@ import static org.bukkit.Bukkit.getLogger;
 */
 
 public class sql {
+    public static boolean log = true;
 
     public static void connect() {
         Connection c = null;
@@ -25,13 +26,13 @@ public class sql {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:plugins/plots.db");
-            getLogger().info("[Enters Plugin]Opened database successfully");
+            if(log) getLogger().info("[Enters Plugin] Opened database successfully");
             c.close();
         } catch ( Exception e ) {
-            getLogger().warning(e.getClass().getName() + ": " + e.getMessage());
+            if(log) getLogger().warning(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
-        getLogger().info("[Enters Plugin]SQL connection closed");
+        if(log) getLogger().info("[Enters Plugin] SQL connection closed");
     }
 
     public static void query(String query){
@@ -40,16 +41,16 @@ public class sql {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:plugins/plots.db");
-            getLogger().info("[Enters Plugin]Opened database successfully");
+            if(log) getLogger().info("[Enters Plugin] Opened database successfully");
             stmt = c.createStatement();
             stmt.executeUpdate(query);
             stmt.close();
 
             c.close();
         } catch ( Exception e ) {
-            getLogger().warning("[Enters Plugin]SQL error - "+e.getClass().getName() + ": " + e.getMessage());
+            if(log) getLogger().warning("[Enters Plugin] SQL error - "+e.getClass().getName() + ": " + e.getMessage());
         }
-        getLogger().info("[Enters Plugin]SQL connection closed");
+        if(log) getLogger().info("[Enters Plugin] SQL connection closed");
     }
     public static ArrayList<ArrayList<String>> getQuery(String query){
         Connection c = null;
@@ -57,7 +58,7 @@ public class sql {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:plugins/plots.db");
-            getLogger().info("[Enters Plugin]Opened database successfully");
+            if(log) getLogger().info("[Enters Plugin] Opened database successfully");
             stmt = c.createStatement();
             ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
             ResultSet resultset =  stmt.executeQuery(query );
@@ -72,11 +73,11 @@ public class sql {
             stmt.close();
             stmt.close();
             c.close();
-            getLogger().info("[Enters Plugin]SQL connection closed");
+            if(log) getLogger().info("[Enters Plugin] SQL connection closed");
             return results;
         } catch ( Exception e ) {
-            getLogger().warning("[Enters Plugin]SQL error - "+e.getClass().getName() + ": " + e.getMessage());
-            getLogger().info("[Enters Plugin]SQL connection closed");
+            if(log) getLogger().warning("[Enters Plugin] SQL error - "+e.getClass().getName() + ": " + e.getMessage());
+            if(log) getLogger().info("[Enters Plugin] SQL connection closed");
             return null;
 
         }

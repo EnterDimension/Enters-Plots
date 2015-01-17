@@ -85,22 +85,37 @@ public class playerListener implements Listener {
     public void onMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
         Location location = player.getLocation();
-        Integer plotId = plots.getPlotId(location);
-        ArrayList<String> plot = plots.getPlot(plotId);
-        Location corner1 = new Location(location.getWorld(),
-                Double.parseDouble(plot.get(2)),Double.parseDouble(plot.get(3)),Double.parseDouble(plot.get(4)));
-        Location corner2 = new Location(location.getWorld(),
-                Double.parseDouble(plot.get(5)),Double.parseDouble(plot.get(6)),Double.parseDouble(plot.get(7)));
-        if(plots.inAnyPlot(location)) if (!plots.getLockType(plotId).equalsIgnoreCase("none")
+        Location from = e.getFrom();
+        Location to = e.getTo();
+        Integer plotId;
+        Boolean movedPlace = from.getBlockX() != to.getBlockX() ||
+                from.getBlockZ() != to.getBlockZ();
+        sql.log = !sql.log;
+        if(plots.inAnyPlot(location)) if (!plots.getLockType(plots.getPlotId(location)).equalsIgnoreCase("none")
                 && player.hasPermission("plots.override")) {
             player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
                     + " Sorry! You do not have permission to walk on this plot ("
                     + plots.getPlotName(plots.getPlotId(location)) + ").");
-            Location from = e.getFrom();
-            Location to = e.getTo();
-            if(from.getBlockX() != to.getBlockX() || from.getBlockZ() != to.getBlockZ()) {
+            if (movedPlace) {
                 e.setTo(from);
             }
-        } 
+        }
+        if (plots.inAnyPlot(to) && !plots.inAnyPlot(from)) { 
+            plotId = plots.getPlotId(to);
+            String suf = plots.getOwner(plotId).substring(plots.getOwner(plotId).length() - 1).equalsIgnoreCase("s")
+                    ? "' " : "'s";
+            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+                    + " Now entering " + plots.getPlotName(plotId) + " ("
+                    + plots.getOwner(plotId) + suf + " plot)");
+        } else if (!plots.inAnyPlot(to) && plots.inAnyPlot(from)) {
+            plotId = plots.getPlotId(from);
+            String suf = plots.getOwner(plotId).substring(plots.getOwner(plotId).length() - 1).equalsIgnoreCase("s")
+                    ? "' " : "'s";
+            player.sendMessage(ChatColor.DARK_AQUA + "[Plots]" + ChatColor.AQUA
+                    + " Now leaving " + plots.getPlotName(plotId) + " ("
+                    + plots.getOwner(plotId) + suf + " plot)");
+        }
+        sql.log = !sql.log;
     }
+
 }
