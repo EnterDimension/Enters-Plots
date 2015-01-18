@@ -297,37 +297,7 @@ public class main extends JavaPlugin {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
                 }
-            } else if (args[0].equalsIgnoreCase("lock")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else {
-                    
-                }
-            } else if (args[0].equalsIgnoreCase("unlock")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else {
-
-                }
-            } else if (args[0].equalsIgnoreCase("name")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else {
-
-                }
-            }
+            } 
         }
         return true;
     }
