@@ -1,10 +1,15 @@
 package me.enterdimension.entersplots.inc;
 
+import me.enterdimension.entersplots.main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -44,13 +49,8 @@ public class plots {
     }
 
     public static boolean inPlot(Location location, Integer plotId) {
-
-        ArrayList<String> plot = getPlot(plotId);
-        Location corner1 = new Location(location.getWorld(),
-                Double.parseDouble(plot.get(2)),Double.parseDouble(plot.get(3)),Double.parseDouble(plot.get(4)));
-        Location corner2 = new Location(location.getWorld(),
-                Double.parseDouble(plot.get(5)),Double.parseDouble(plot.get(6)),Double.parseDouble(plot.get(7)));
-        return area.inArea(corner1, corner2, location);
+        List<Location> corners = getPlotCorners(plotId, location.getWorld());
+        return area.inArea(corners.get(0), corners.get(1), location);
     }
     public static boolean inAnyPlot(Location location){
         ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
@@ -58,6 +58,14 @@ public class plots {
             if(inPlot(location, Integer.parseInt(plot.get(0)))) return true;
         }
         return false;
+    }
+    public static List<Location> getPlotCorners(Integer plotId, World world) {
+        ArrayList<String> plot = getPlot(plotId);
+        Location corner1 = new Location(world,
+                Double.parseDouble(plot.get(2)),Double.parseDouble(plot.get(3)),Double.parseDouble(plot.get(4)));
+        Location corner2 = new Location(world,
+                Double.parseDouble(plot.get(5)),Double.parseDouble(plot.get(6)),Double.parseDouble(plot.get(7)));
+        return Arrays.asList(corner1, corner2);
     }
     public static Integer getPlotId(Location location){
         ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
@@ -81,6 +89,12 @@ public class plots {
         return !(user == null) && user.get(2).equalsIgnoreCase(rank);
     }
     public static String getLockType(Integer plotId){
-        return plots.getPlot(plotId).get(9);
+        return plots.getPlot(plotId).get(9).split(" ")[0];
+    }
+    public static String getLock(Integer plotId){
+        return plots.getPlot(plotId).get(9).split(" ")[1];
+    }
+    public static void allowAccess(Player player, Integer plotId){
+        PermissionAttachment attachment = player.addAttachment(main.instance,"plots.plot_" + plotId + ".access",true);
     }
 }
