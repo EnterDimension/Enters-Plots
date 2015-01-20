@@ -351,10 +351,7 @@ public class main extends JavaPlugin {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("unlock")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
+                if(!plots.inAnyPlot(sender.getLocation())) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
                 } else if(plots.inAnyPlot(sender.getLocation())) {
@@ -367,9 +364,9 @@ public class main extends JavaPlugin {
 
                 }
             } else if (args[0].equalsIgnoreCase("name")) {
-                if (args.length != 3) {
+                if (args.length == 1) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
+                            + "Please use the correct syntax: /plots name [plot name]");
                 } else if(!plots.inAnyPlot(sender.getLocation())) {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                             + "Outside of a plot. Please run this command standing anywhere on the plot.");
@@ -385,7 +382,7 @@ public class main extends JavaPlugin {
                 if(promptPassword.containsKey(sender)) if(promptPassword.get(sender)){
                     if (args.length == 1) {
                         sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                                + "Please use the correct syntax: /plots removeOwner [username]");
+                                + "Please use the correct syntax: /plots password [password]");
                     } else {
                         rePassword.put(sender, args[1]);
                     }
