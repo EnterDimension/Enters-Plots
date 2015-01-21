@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.enterdimension.entersplots.inc.area;
@@ -34,6 +33,7 @@ public class main extends JavaPlugin {
     public main() {
         instance = this;
     }
+
     public final HashMap<Player, Location[]> cornersMap = new HashMap<Player, Location[]>();
     public static HashMap<Player, Boolean> promptPassword = new HashMap<Player, Boolean>();
     public static HashMap<Player, String> rePassword = new HashMap<Player, String>();
@@ -242,9 +242,7 @@ public class main extends JavaPlugin {
                 } else if (plots.inAnyPlot(sender.getLocation())) {
                     Integer plotId = plots.getPlotId(sender.getLocation());
                     ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
-                    if(users == null){
-                        users = new ArrayList<ArrayList<String>>();
-                    }
+                    if(users == null) users = new ArrayList<ArrayList<String>>();
                     for(ArrayList<String> row: users){
                         if(row.get(1).equalsIgnoreCase(args[1])){
                             sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");

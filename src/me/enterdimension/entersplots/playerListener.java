@@ -1,13 +1,10 @@
 package me.enterdimension.entersplots;
 
-import me.enterdimension.entersplots.inc.area;
 import me.enterdimension.entersplots.inc.plots;
 import me.enterdimension.entersplots.inc.sql;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -17,9 +14,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 
@@ -36,7 +30,6 @@ import java.util.ArrayList;
 */
 public class playerListener implements Listener {
 
-
     public playerListener(main plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -47,13 +40,13 @@ public class playerListener implements Listener {
         Block block = e.getBlock();
         if(plots.inAnyPlot(block.getLocation())) {
             Integer plotId = plots.getPlotId(block.getLocation());
-            if (!(plots.hasRank(player, plots.getPlotId(block.getLocation()), "owner") ||
-                    plots.hasRank(player, plots.getPlotId(block.getLocation()), "member") ||
+            if (!(plots.hasRank(player, plotId, "owner") ||
+                    plots.hasRank(player, plotId, "member") ||
                     player.hasPermission("plots.override"))) {
                 player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
                         + ChatColor.AQUA
                         + " Sorry! You do not have permission to build on this plot ("
-                        + plots.getPlotName(plots.getPlotId(block.getLocation())) + ").");
+                        + plots.getPlotName(plotId) + ").");
                 e.setCancelled(true);
             }
         }
@@ -128,19 +121,24 @@ public class playerListener implements Listener {
                                     + " You can now access " + plots.getPlotName(plotId)
                                     + ". You will be able to access this plot until you leave the server.");
                             plots.allowAccess(player, plotId);
+                        } else {
+                            player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                    + ChatColor.AQUA
+                                    + " Incorrect password. Please try again or contact an admin if you have forgotten "
+                                    + "your password");
                         }
-                    }
-                } else {
-                    player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                            + ChatColor.AQUA
-                            + " In order to access this plot(" + plots.getPlotName(plotId)
-                            + ") you must enter a password . Please type /plots password [password]");
-                    if (main.promptPassword.containsKey(player)) {
-                        main.promptPassword.replace(player, main.promptPassword.get(player), true);
-                        return;
-                    } else {
-                        main.promptPassword.put(player, true);
-                        return;
+                    }  else {
+                        player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " In order to access this plot(" + plots.getPlotName(plotId)
+                                + ") you must enter a password . Please type /plots password [password]");
+                        if (main.promptPassword.containsKey(player)) {
+                            main.promptPassword.replace(player, main.promptPassword.get(player), true);
+                            return;
+                        } else {
+                            main.promptPassword.put(player, true);
+                            return;
+                        }
                     }
                 }
             }
