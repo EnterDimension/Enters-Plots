@@ -374,7 +374,7 @@ public class main extends JavaPlugin {
                     sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
                             + ChatColor.AQUA
                             + " Successfully " + ChatColor.BOLD + "renamed " + ChatColor.RESET + ChatColor.AQUA
-                            + plots.getPlotName(plotId) + " to " + args[2]);
+                            + plots.getPlotName(plotId) + " to " + args[1]);
                 }
             } else if (args[0].equalsIgnoreCase("password")){
                 if(promptPassword.containsKey(sender)) if(promptPassword.get(sender)){
