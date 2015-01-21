@@ -1,6 +1,5 @@
 package me.enterdimension.entersplots;
 
-import me.enterdimension.entersplots.inc.plots;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -11,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.enterdimension.entersplots.inc.area;
 import me.enterdimension.entersplots.inc.sql;
+import me.enterdimension.entersplots.inc.plots;
 
 import java.util.ArrayList;
 import java.util.HashMap;
