@@ -89,203 +89,220 @@ public class main extends JavaPlugin {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("select")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots select [1 or 2]");
-                } else {
-                    if (args[1].equalsIgnoreCase("1") || args[1].equalsIgnoreCase("2")) {
-                        Location l = sender.getLocation();
-                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                + ChatColor.AQUA
-                                + " Selected corner number " + args[1] + " @(" + l.getBlockX() + ", "
-                                + l.getBlockY() + ", " + l.getBlockZ() + ")");
-                        if(cornersMap.containsKey(sender)){
-                            Location [] corners = cornersMap.get(sender);
-                            corners[(Integer.parseInt(args[1])) - 1] = l;
-                            cornersMap.replace(sender, cornersMap.get(sender), corners);
-                        } else {
-                            Location[] corners = new Location[2];
-                            corners[(Integer.parseInt(args[1])) - 1] = l;
-                            cornersMap.put(sender, corners);
-                        }
-                    } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
+                if (sender.hasPermission("plots.control")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                                 + "Please use the correct syntax: /plots select [1 or 2]");
-                    }
+                    } else {
+                        if (args[1].equalsIgnoreCase("1") || args[1].equalsIgnoreCase("2")) {
+                            Location l = sender.getLocation();
+                            sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                    + ChatColor.AQUA
+                                    + " Selected corner number " + args[1] + " @(" + l.getBlockX() + ", "
+                                    + l.getBlockY() + ", " + l.getBlockZ() + ")");
+                            if (cornersMap.containsKey(sender)) {
+                                Location[] corners = cornersMap.get(sender);
+                                corners[(Integer.parseInt(args[1])) - 1] = l;
+                                cornersMap.replace(sender, cornersMap.get(sender), corners);
+                            } else {
+                                Location[] corners = new Location[2];
+                                corners[(Integer.parseInt(args[1])) - 1] = l;
+                                cornersMap.put(sender, corners);
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
+                                    + "Please use the correct syntax: /plots select [1 or 2]");
+                        }
 
+                    }
                 }
             } else if (args[0].equalsIgnoreCase("claim")) {
-                ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
-                Integer plotId = results.size()+1;
-                for(Map.Entry<Player, Location[]> entry: cornersMap.entrySet()){
-                    if(entry.getKey() == sender) if(entry.getValue().length == 2) {
-                        Location[] corners = entry.getValue();
-                        sql.query("INSERT INTO plots (Owner,corner1x,corner1y,corner1z,corner2x,corner2y,corner2z) " +
-                                "VALUES ('" + sender.getName() + "','" +
-                                corners[0].getBlockX() + "','" +
-                                corners[0].getBlockY() + "','" +
-                                corners[0].getBlockZ() + "','" +
-                                corners[1].getBlockX() + "','" +
-                                corners[1].getBlockY() + "','" +
-                                corners[1].getBlockZ() + "');");
-                    } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
-                                + "Please select 2 corners before attempting to claim a plot!");
-                    }
-                }
-                sql.query("CREATE TABLE `plot_" + plotId + "` (" +
-                        "`ID`INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        "`username`TEXT," +
-                        "`rank`TEXT," +
-                        "`addedBy`TEXT" +
-                        ");");
-                List<Location> corners = plots.getPlotCorners(plotId, sender.getLocation().getWorld());
-                sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA + " Successfully " + ChatColor.BOLD
-                        + "claimed " + ChatColor.RESET + ChatColor.AQUA + area.getColumnCount(corners.get(0), corners.get(1))
-                        + " columns under plot "
-                        + Integer.toString(results.size() + 1) + ". Type /plots options for all plot actions.");
-            } else if (args[0].equalsIgnoreCase("add")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots add [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                }
-                else
-                {
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    sql.query("INSERT INTO plot_" + plotId +
-                            " (username, rank, addedBy) VALUES('" + args[1] +
-                            "', 'member', '" + sender.getName() + "')");
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                            + " Successfully " + ChatColor.BOLD + " added " + ChatColor.RESET + ChatColor.AQUA + args[1]
-                            + " to plot " + plots.getPlotName(plotId) + ". To see all people added to this plot type /plots users.");
-
-                }
-            } else if (args[0].equalsIgnoreCase("remove")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else if (plots.inAnyPlot(sender.getLocation())) {
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
-                    if(users == null){
-                        users = new ArrayList<ArrayList<String>>();
-                    }
-                    for(ArrayList<String> row: users){
-                        if(row.get(1).equalsIgnoreCase(args[1])){
-                            sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
-                            sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                                    + " Successfully " + ChatColor.BOLD + "removed " + ChatColor.RESET + ChatColor.AQUA
-                                    + args[1] + " from plot " + plots.getPlotName(plotId)
-                                    + ". To see all members of this plot type /plots users.");
-                            break commandLoop;
+                if (sender.hasPermission("plots.control")) {
+                    ArrayList<ArrayList<String>> results = sql.getQuery("SELECT * FROM plots");
+                    Integer plotId = results.size()+1;
+                    for(Map.Entry<Player, Location[]> entry: cornersMap.entrySet()) {
+                        if (entry.getKey() == sender) if (entry.getValue().length == 2) {
+                            Location[] corners = entry.getValue();
+                            if (area.getColumnCount(corners[0], corners[1]) >= 100000) {
+                                sql.query("INSERT INTO plots (Owner,corner1x,corner1y,corner1z,corner2x,corner2y,corner2z) " +
+                                        "VALUES ('" + sender.getName() + "','" +
+                                        corners[0].getBlockX() + "','" +
+                                        corners[0].getBlockY() + "','" +
+                                        corners[0].getBlockZ() + "','" +
+                                        corners[1].getBlockX() + "','" +
+                                        corners[1].getBlockY() + "','" +
+                                        corners[1].getBlockZ() + "');");
+                                sql.query("CREATE TABLE `plot_" + plotId + "` (" +
+                                        "`ID`INTEGER PRIMARY KEY AUTOINCREMENT," +
+                                        "`username`TEXT," +
+                                        "`rank`TEXT," +
+                                        "`addedBy`TEXT" +
+                                        ");");
+                                sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                        + ChatColor.AQUA + " Successfully " + ChatColor.BOLD
+                                        + "claimed " + ChatColor.RESET + ChatColor.AQUA + area.getColumnCount(corners[0],
+                                        corners[1]) + " columns under plot "
+                                        + Integer.toString(results.size() + 1) + ". Type /plots options for all plot actions.");
+                            } else {
+                                sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
+                                        + "Please select 2 corners before attempting to claim a plot!");
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RESET + ChatColor.RED
+                                    + "Please select 2 corners before attempting to claim a plot!");
                         }
                     }
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                            + " Sorry, but there is no player currently on this plot with the name " + args[1]
-                            + ". To see all members of this plot type /plots users.");
                 }
-            } else if (args[0].equalsIgnoreCase("lookup")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots lookup [plotID or name]");
-                } else {
-                    ArrayList<String> plot = sql.getQuery("SELECT * FROM plots WHERE ID = " + args[1]
-                            + " OR name = " + args[1]).get(0);
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            "&6Plot ID:&r " + plot.get(0) + "\n&6Plot name:&r " + plot.get(8)
-                                    + "\n&6Plot owner:&r " + plot.get(1)
-                    ));
-                }
-            } else if (args[0].equalsIgnoreCase("addOwner")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots add [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                }
-                else {
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    if (plots.getPlotUser(plotId, args[1]) == null) {
+            } else if (args[0].equalsIgnoreCase("add")) {
+                if (sender.hasPermission("plots.control")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Please use the correct syntax: /plots add [username]");
+                    } else if (!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
                         sql.query("INSERT INTO plot_" + plotId +
                                 " (username, rank, addedBy) VALUES('" + args[1] +
-                                "', 'owner', '" + sender.getName() + "')");
-                        sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                                + " Successfully " + ChatColor.BOLD + "added " + ChatColor.RESET + ChatColor.AQUA
-                                +  args[1] + " as an owner to " + plots.getPlotName(plotId)
-                                + ". To see all people added to this plot type /plots users.");
+                                "', 'member', '" + sender.getName() + "')");
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " Successfully " + ChatColor.BOLD + " added " + ChatColor.RESET + ChatColor.AQUA + args[1]
+                                + " to plot " + plots.getPlotName(plotId) + ". To see all people added to this plot type /plots users.");
+
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("remove")) {
+                if (sender.hasPermission("plots.control")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Please use the correct syntax: /plots removeOwner [username]");
+                    } else if (!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if (plots.inAnyPlot(sender.getLocation())) {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
+                        if (users == null) {
+                            users = new ArrayList<ArrayList<String>>();
+                        }
+                        for (ArrayList<String> row : users) {
+                            if (row.get(1).equalsIgnoreCase(args[1])) {
+                                sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
+                                sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                        + ChatColor.AQUA
+                                        + " Successfully " + ChatColor.BOLD + "removed " + ChatColor.RESET + ChatColor.AQUA
+                                        + args[1] + " from plot " + plots.getPlotName(plotId)
+                                        + ". To see all members of this plot type /plots users.");
+                                break commandLoop;
+                            }
+                        }
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " Sorry, but there is no player currently on this plot with the name " + args[1]
+                                + ". To see all members of this plot type /plots users.");
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("lookup")) {
+                if (sender.hasPermission("plots.help")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Please use the correct syntax: /plots lookup [plotID or name]");
                     } else {
-                        sql.query("UPDATE plot_" + plotId + " SET rank = 'owner' WHERE username = '" + args[1] + "'");
-                        sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                        ArrayList<String> plot = sql.getQuery("SELECT * FROM plots WHERE ID = " + args[1]
+                                + " OR name = " + args[1]).get(0);
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&6Plot ID:&r " + plot.get(0) + "\n&6Plot name:&r " + plot.get(8)
+                                        + "\n&6Plot owner:&r " + plot.get(1)
+                        ));
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("addOwner")) {
+                if (sender.hasPermission("plots.admin")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Please use the correct syntax: /plots add [username]");
+                    } else if(!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    }
+                    else {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        if (plots.getPlotUser(plotId, args[1]) == null) {
+                            sql.query("INSERT INTO plot_" + plotId +
+                                    " (username, rank, addedBy) VALUES('" + args[1] +
+                                    "', 'owner', '" + sender.getName() + "')");
+                            sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
                                     + ChatColor.AQUA
-                                + " Successfully " + ChatColor.BOLD + "promoted " + ChatColor.RESET + ChatColor.AQUA
-                                + args[1] + " to plot owner on " + plots.getPlotName(plotId)
-                                + ". To see all people added to this plot type /plots users.");
+                                    + " Successfully " + ChatColor.BOLD + "added " + ChatColor.RESET + ChatColor.AQUA
+                                    + args[1] + " as an owner to " + plots.getPlotName(plotId)
+                                    + ". To see all people added to this plot type /plots users.");
+                        } else {
+                            sql.query("UPDATE plot_" + plotId + " SET rank = 'owner' WHERE username = '" + args[1] + "'");
+                            sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                    + ChatColor.AQUA
+                                    + " Successfully " + ChatColor.BOLD + "promoted " + ChatColor.RESET + ChatColor.AQUA
+                                    + args[1] + " to plot owner on " + plots.getPlotName(plotId)
+                                    + ". To see all people added to this plot type /plots users.");
+                        }
                     }
                 }
             } else if (args[0].equalsIgnoreCase("removeOwner")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots removeOwner [username]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else if (plots.inAnyPlot(sender.getLocation())) {
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
-                    if(users == null) users = new ArrayList<ArrayList<String>>();
-                    for(ArrayList<String> row: users){
-                        if(row.get(1).equalsIgnoreCase(args[1])){
-                            sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
-                            sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                                    + " Successfully " + ChatColor.BOLD + "removed " + ChatColor.RESET + ChatColor.AQUA
-                                    + args[1] + " from " + plots.getPlotName(plotId)
-                                    + ". To see all members of this plot type /plots users.");
-                            break commandLoop;
-                        }
-                    }
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                            + " Sorry, but there is no player currently on this plot with the name " + args[1]
-                            + ". To see all members of this plot type /plots users.");
-                }
-            } else if (args[0].equalsIgnoreCase("users")) {
-                if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else  if (plots.inAnyPlot(sender.getLocation())) {
-                    ArrayList<ArrayList<String>> plotUsers = plots.getPlotUsers(plots.getPlotId(sender.getLocation()));
-                    String users = "";
-                    if (!(plotUsers == null)){
-                        for (ArrayList<String> u : plotUsers) {
-                            if (u.get(2).equalsIgnoreCase("owner")) {
-                                users += "(Co-Owner)" + u.get(1) + ", ";
-                            } else {
-                                users += u.get(1) + ", ";
+                if (sender.hasPermission("plots.admin")) {
+                    if (args.length == 1) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Please use the correct syntax: /plots removeOwner [username]");
+                    } else if(!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if (plots.inAnyPlot(sender.getLocation())) {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        ArrayList<ArrayList<String>> users = plots.getPlotUsers(plotId);
+                        if(users == null) users = new ArrayList<ArrayList<String>>();
+                        for(ArrayList<String> row: users){
+                            if(row.get(1).equalsIgnoreCase(args[1])){
+                                sql.query("DELETE FROM plot_" + plotId + " WHERE username = '" + args[1] + "'");
+                                sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                        + ChatColor.AQUA
+                                        + " Successfully " + ChatColor.BOLD + "removed " + ChatColor.RESET + ChatColor.AQUA
+                                        + args[1] + " from " + plots.getPlotName(plotId)
+                                        + ". To see all members of this plot type /plots users.");
+                                break commandLoop;
                             }
                         }
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                        + ChatColor.AQUA
+                                + " Sorry, but there is no player currently on this plot with the name " + args[1]
+                                + ". To see all members of this plot type /plots users.");
                     }
-                    else {
-                        users = "(None)";
+                }
+            } else if (args[0].equalsIgnoreCase("users")) {
+                if (sender.hasPermission("plots.control")) {
+                    if (!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if (plots.inAnyPlot(sender.getLocation())) {
+                        ArrayList<ArrayList<String>> plotUsers = plots.getPlotUsers(plots.getPlotId(sender.getLocation()));
+                        String users = "";
+                        if (!(plotUsers == null)) {
+                            for (ArrayList<String> u : plotUsers) {
+                                if (u.get(2).equalsIgnoreCase("owner")) {
+                                    users += "(Co-Owner)" + u.get(1) + ", ";
+                                } else {
+                                    users += u.get(1) + ", ";
+                                }
+                            }
+                        } else {
+                            users = "(None)";
+                        }
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " Showing all users for plot " + plots.getPlotId(sender.getLocation())
+                                + ChatColor.translateAlternateColorCodes('&', "\n&6Plot Owner:&r "
+                                + plots.getOwner(plots.getPlotId(sender.getLocation()))
+                                + "\n&6Plot Users:&r " + users));
                     }
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                    + ChatColor.AQUA
-                            + " Showing all users for plot " + plots.getPlotId(sender.getLocation())
-                            + ChatColor.translateAlternateColorCodes('&', "\n&6Plot Owner:&r "
-                            + plots.getOwner(plots.getPlotId(sender.getLocation()))
-                            + "\n&6Plot Users:&r " + users));
                 }
             }  else if (args[0].equalsIgnoreCase("options")) {
                 if (plots.inAnyPlot(sender.getLocation())) {
@@ -327,71 +344,78 @@ public class main extends JavaPlugin {
                 }
 
             } else if (args[0].equalsIgnoreCase("lock")) {
-                if (args.length != 3) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots lock [lock type]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else if(plots.inAnyPlot(sender.getLocation())){
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    if(args[1].equalsIgnoreCase("group")||args[1].equalsIgnoreCase("password")||
-                            args[1].equalsIgnoreCase("player")){
-                        sql.query("UPDATE plots SET locked = '" + args[1] + " " + args[2] + "' WHERE ID = " + plotId);
-                        sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                + ChatColor.AQUA
-                                + " Successfully " + ChatColor.BOLD + "locked " + ChatColor.RESET + ChatColor.AQUA
-                                + plots.getPlotName(plotId) + " with a "
-                                + args[1] + " lock(" + args[2] + ")");
-                    }
-                    else {
+                if (sender.hasPermission("plots.admin")) {
+                    if (args.length != 3) {
                         sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                                + " Please select a valid lock type from the following when locking a plot"
-                                + ": group, password, player");
+                                + "Please use the correct syntax: /plots lock [lock type]");
+                    } else if(!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if(plots.inAnyPlot(sender.getLocation())) {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        if (args[1].equalsIgnoreCase("group") || args[1].equalsIgnoreCase("password") ||
+                                args[1].equalsIgnoreCase("player")) {
+                            sql.query("UPDATE plots SET locked = '" + args[1] + " " + args[2] + "' WHERE ID = " + plotId);
+                            sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                    + ChatColor.AQUA
+                                    + " Successfully " + ChatColor.BOLD + "locked " + ChatColor.RESET + ChatColor.AQUA
+                                    + plots.getPlotName(plotId) + " with a "
+                                    + args[1] + " lock(" + args[2] + ")");
+                        } else {
+                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                    + " Please select a valid lock type from the following when locking a plot"
+                                    + ": group, password, player");
+                        }
                     }
                 }
             } else if (args[0].equalsIgnoreCase("unlock")) {
-                if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else if(plots.inAnyPlot(sender.getLocation())) {
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    sql.query("UPDATE plots SET locked = 'none' WHERE ID = " + plotId);
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                            + ChatColor.AQUA
-                            + " Successfully " + ChatColor.BOLD + "unlocked " + ChatColor.RESET + ChatColor.AQUA
-                            + plots.getPlotName(plotId));
+                if (sender.hasPermission("plots.admin")) {
+                    if (!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if (plots.inAnyPlot(sender.getLocation())) {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        sql.query("UPDATE plots SET locked = 'none' WHERE ID = " + plotId);
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " Successfully " + ChatColor.BOLD + "unlocked " + ChatColor.RESET + ChatColor.AQUA
+                                + plots.getPlotName(plotId));
 
+                    }
                 }
             } else if (args[0].equalsIgnoreCase("name")) {
-                if (args.length == 1) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Please use the correct syntax: /plots name [plot name]");
-                } else if(!plots.inAnyPlot(sender.getLocation())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "Outside of a plot. Please run this command standing anywhere on the plot.");
-                } else if(plots.inAnyPlot(sender.getLocation())){
-                    Integer plotId = plots.getPlotId(sender.getLocation());
-                    sql.query("UPDATE plots SET name = '" + args[1] + "' WHERE ID = " + plotId);
-                    sender.sendMessage(ChatColor.DARK_AQUA + "" +  ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                            + ChatColor.AQUA
-                            + " Successfully " + ChatColor.BOLD + "renamed " + ChatColor.RESET + ChatColor.AQUA
-                            + plots.getPlotName(plotId) + " to " + args[1]);
-                }
-            } else if (args[0].equalsIgnoreCase("password")){
-                if(promptPassword.containsKey(sender)) if(promptPassword.get(sender)){
+                if (sender.hasPermission("plots.name")) {
                     if (args.length == 1) {
                         sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                                + "Please use the correct syntax: /plots password [password]");
-                    } else if (!main.rePassword.containsKey(sender)) {
-                        rePassword.put(sender, args[1]);
-                    } else {
-                        rePassword.replace(sender, args[1]);
+                                + "Please use the correct syntax: /plots name [plot name]");
+                    } else if (!plots.inAnyPlot(sender.getLocation())) {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "Outside of a plot. Please run this command standing anywhere on the plot.");
+                    } else if (plots.inAnyPlot(sender.getLocation())) {
+                        Integer plotId = plots.getPlotId(sender.getLocation());
+                        sql.query("UPDATE plots SET name = '" + args[1] + "' WHERE ID = " + plotId);
+                        sender.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                + ChatColor.AQUA
+                                + " Successfully " + ChatColor.BOLD + "renamed " + ChatColor.RESET + ChatColor.AQUA
+                                + plots.getPlotName(plotId) + " to " + args[1]);
                     }
-                } else {
-                    sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
-                            + "No plot to unlock with a password. Please double check the plot you're trying to unlock"
-                            + " requires a password.");
+                }
+            } else if (args[0].equalsIgnoreCase("password")){
+                if (sender.hasPermission("plots.password")) {
+                    if (promptPassword.containsKey(sender)) if (promptPassword.get(sender)) {
+                        if (args.length == 1) {
+                            sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                    + "Please use the correct syntax: /plots password [password]");
+                        } else if (!main.rePassword.containsKey(sender)) {
+                            rePassword.put(sender, args[1]);
+                        } else {
+                            rePassword.replace(sender, args[1]);
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
+                                + "No plot to unlock with a password. Please double check the plot you're trying to unlock"
+                                + " requires a password.");
+                    }
                 }
             }
         }

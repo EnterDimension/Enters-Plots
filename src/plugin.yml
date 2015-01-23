@@ -14,11 +14,20 @@ permissions:
         children:
             plots.control: true
             plots.admin: true
+            plots.name: true
+            plots.password: true
+            plots.override: true
     plots.control:
         description: Allows claiming, selling and basic management of plots.
         default: true
     plots.admin:
         description: Allows advanced control and some extra features for plots.
+        default: op
+    plots.name:
+        description: Allows naming of owned plots.
+        default: true
+    plots.password:
+        description: Allows unlocking a locked plot with a password.
         default: op
     plots.override:
         description: Allows bypassing any protection on any plot.
