@@ -45,9 +45,11 @@ public class main extends JavaPlugin {
     }
     public void onDisable(){
         getLogger().info("Enter's Plots has stopped running.");
+
     }
 
     public boolean onCommand(CommandSender commandsender, Command cmd, String label, String[] args) {
+
         String command = cmd.getName();
         if (commandsender instanceof Player && command.equalsIgnoreCase("plots")) {
             Player sender = (Player) commandsender;
@@ -381,8 +383,10 @@ public class main extends JavaPlugin {
                     if (args.length == 1) {
                         sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED
                                 + "Please use the correct syntax: /plots password [password]");
-                    } else {
+                    } else if (!main.rePassword.containsKey(sender)) {
                         rePassword.put(sender, args[1]);
+                    } else {
+                        rePassword.replace(sender, args[1]);
                     }
                 } else {
                     sender.sendMessage(ChatColor.DARK_RED + "Error: " + ChatColor.RED

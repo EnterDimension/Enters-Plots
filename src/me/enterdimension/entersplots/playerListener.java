@@ -97,6 +97,7 @@ public class playerListener implements Listener {
     }
 
     @EventHandler
+
     public void onMove(PlayerMoveEvent e) {
         sql.log = false;
         Player player = e.getPlayer();
@@ -106,51 +107,41 @@ public class playerListener implements Listener {
         Integer plotId;
         Boolean movedPlace = from.getBlockX() != to.getBlockX() ||
                 from.getBlockZ() != to.getBlockZ();
-
-        if (plots.inAnyPlot(location)) {
+        inLockedPlot:
+        if (plots.inAnyPlot(to)) {
             plotId = plots.getPlotId(location);
-            if (!plots.getLockType(plotId).equalsIgnoreCase("none")
-                    && !player.hasPermission("plots.override")) {
+            if (!plots.getLockType(plotId).equalsIgnoreCase("none") && !player.hasPermission("plots.override")) {
                 if (plots.getLock(plotId).equalsIgnoreCase("password")) {
-                    if (!player.hasPermission("plots.plot_" + plotId + ".access")) {
-                        if (main.rePassword.containsKey(player)) {
-                            if (main.rePassword.get(player)
-                                    .equalsIgnoreCase(plots.getLock(plotId))) {
-                                player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                        + ChatColor.AQUA
-                                        + " You can now access " + plots.getPlotName(plotId)
-                                        + ". You will be able to access this plot until you leave the server.");
-                                plots.allowAccess(player, plotId);
-                            } else {
-                                player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
-                                        + ChatColor.AQUA
-                                        + " Incorrect password. Please try again or contact an admin if you have forgotten "
-                                        + "your password");
-                            }
+                    if (main.rePassword.containsKey(player)) {
+                        if (main.rePassword.get(player)
+                                .equalsIgnoreCase(plots.getLock(plotId))) {
+                            player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                                    + ChatColor.AQUA
+                                    + " You can now access " + plots.getPlotName(plotId)
+                                    + ". You will be able to access this plot until you leave the server.");
+                            plots.allowAccess(player, plotId);
+                            break inLockedPlot;
                         } else {
                             player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
                                     + ChatColor.AQUA
-                                    + " In order to access this plot(" + plots.getPlotName(plotId)
-                                    + ") you must enter a password . Please type /plots password [password]");
-                            if (main.promptPassword.containsKey(player)) {
-                                main.promptPassword.replace(player, main.promptPassword.get(player), true);
-                                return;
-                            } else {
-                                main.promptPassword.put(player, true);
-                                return;
-                            }
+                                    + " Incorrect password. Please try again or contact an admin if you have "
+                                    + "forgotten your password");
                         }
-                    }
-                    else if (movedPlace && !player.hasPermission("plots.plot_" + plotId + ".access")) {
-                        e.setTo(from);
+                    } else {
                         player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
                                 + ChatColor.AQUA
-                                + " Sorry! You do not have permission to walk on this plot ("
-                                + plots.getPlotName(plots.getPlotId(location)) + ").");
+                                + " In order to access this plot(" + plots.getPlotName(plotId)
+                                + ") you must enter a password . Please type /plots password [password]");
+                        main.promptPassword.put(player, true);
+                        return;
                     }
+                    e.setTo(from);
+                    player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "[Plots]" + ChatColor.RESET
+                            + ChatColor.AQUA
+                            + " Sorry! You do not have permission to walk on this plot ("
+                            + plots.getPlotName(plots.getPlotId(location)) + ").");
                 }
             }
-
 
             if (plots.inAnyPlot(to) && !plots.inAnyPlot(from)) {
                 plotId = plots.getPlotId(to);
